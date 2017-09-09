@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Actions>
+  <!--Initial Page-->
+  <Action name="GoogleHomePage" type="Navigation" value="https://google.com"></Action>
+
+  <!--Search Box-->
+  <Action id="lst-ib" type="Textbox" value="Selenium Test"/>
+
+  <!--Search-->
+  <Action name="btnK" type="Button"/>
+</Actions>
