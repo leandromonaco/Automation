@@ -27,13 +27,34 @@ namespace Automation.UI
 
                 xml.Load(TestPath);
 
-                var actions = xml.SelectNodes("//Action");
-
-
-                foreach (XmlNode action in actions)
+                foreach (XmlNode node in xml.ChildNodes[1].ChildNodes)
                 {
-                    Thread.Sleep(2000);
-                    FillControl(action, Driver);
+                    if (!node.Name.Equals("Action") && !node.Name.Equals("Loop")) continue;
+                    switch (node.Name)
+                    {
+                        case "Action":
+                            Thread.Sleep(2000);
+                            FillControl(node, Driver);
+                            break;
+                        case "Loop":
+                            var stopwatch = new Stopwatch();
+                            stopwatch.Start();
+                            int durationInMinutes = int.Parse(node.Attributes["DurationInMinutes"].Value);
+                            while (stopwatch.Elapsed.Minutes < durationInMinutes)
+                            {
+                                foreach (XmlNode loopnode in node.ChildNodes)
+                                {
+                                    if (loopnode.Name.Equals("Action"))
+                                    {
+                                        Thread.Sleep(2000);
+                                        FillControl(loopnode, Driver);
+                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             catch (Exception)

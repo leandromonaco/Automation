@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Actions>
+  <!--Initial Page-->
+  <Action name="GoogleHomePage" type="Navigation" value="https://google.com"/>
+
+  <!--Search Box-->
+  <Action id="lst-ib" type="Textbox" value="Selenium Test" submit="true"/>
+
+  <Loop DurationInMinutes="10">
+    <Action name="GoogleHomePage" type="Navigation" value="https://google.com"/>
+    <!--Search Box-->
+    <Action id="lst-ib" type="Textbox" value="This is executing from the loop" submit="true"/>
+  </Loop>
+
+</Actions>

@@ -1,11 +1,9 @@
 ﻿using Automation.UI;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Firefox;
 using Xunit;
 
 namespace Automation.Test
 {
-    public class WebUITest
+    public class WebUiTest
     {
         [Fact]
         public void SearchOnGoogle()
