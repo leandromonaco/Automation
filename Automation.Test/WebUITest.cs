@@ -8,7 +8,7 @@ namespace Automation.Test
         [Fact]
         public void SearchOnGoogle()
         {
-            FirefoxWebAutomation firefoxWebAutomation = new FirefoxWebAutomation(@"C:\GitHub\Automation\Automation\Automation.Test\Source\GoogleSearch.xml", 
+            FirefoxWebAutomation firefoxWebAutomation = new FirefoxWebAutomation(@"C:\GitHub\Automation\Automation\Automation.Test\Scenarios\Scenario_1.xml", 
                                                                                  @"C:\GitHub\Automation\Automation\Automation.Test\Drivers\");
             firefoxWebAutomation.RunProcess();
         }

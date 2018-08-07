@@ -64,7 +64,7 @@
     </Content>
     <Content Include="Drivers\geckodriver.exe" />
     <Content Include="Drivers\MicrosoftWebDriver.exe" />
-    <Content Include="Scenarios\GoogleSearch.xml">
+    <Content Include="Scenarios\Scenario_1.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading;
 using System.Xml;
+using Automation.UI.Steps;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
 
@@ -27,14 +27,18 @@ namespace Automation.UI
 
                 xml.Load(TestPath);
 
-                foreach (XmlNode node in xml.ChildNodes[1].ChildNodes)
+                foreach (XmlNode node in xml.ChildNodes[0].ChildNodes)
                 {
-                    if (!node.Name.Equals("Action") && !node.Name.Equals("Loop")) continue;
+                    if (!node.Name.Equals("Step") && !node.Name.Equals("Loop")) continue;
+
+
+                    IStep step;
+
                     switch (node.Name)
                     {
-                        case "Action":
-                            Thread.Sleep(2000);
-                            FillControl(node, Driver);
+                        case "Step":
+                            step = GetStepObject(node, Driver);
+                            step.Execute();
                             break;
                         case "Loop":
                             var stopwatch = new Stopwatch();
@@ -44,15 +48,13 @@ namespace Automation.UI
                             {
                                 foreach (XmlNode loopnode in node.ChildNodes)
                                 {
-                                    if (loopnode.Name.Equals("Action"))
+                                    if (loopnode.Name.Equals("Step"))
                                     {
-                                        Thread.Sleep(2000);
-                                        FillControl(loopnode, Driver);
+                                        step = GetStepObject(loopnode, Driver);
+                                        step.Execute();
                                     }
                                 }
                             }
-                            break;
-                        default:
                             break;
                     }
                 }
@@ -61,6 +63,37 @@ namespace Automation.UI
             {
                 throw;
             }
+        }
+
+        private IStep GetStepObject(XmlNode node, RemoteWebDriver driver)
+        {
+            BaseStep step = null;
+            //TODO: Improve this with OOD
+            switch (node.Attributes["type"].Value)
+            {
+                case "Navigation":
+                    step = new NavigationStep(node, driver);
+                    break;
+                case "Checkbox":
+                case "Button":
+                case "Link":
+                case "RadioButton":
+                    step = new ClickStep(node, driver);
+                    break;
+                case "Submit":
+                    step = new SubmitStep(node, driver);
+                    break;
+                case "Combobox":
+                case "Textbox":
+                    step = new InputStep(node, driver);
+                    break;
+                case "ScrollTo":
+                    step = new ScrollStep(node, driver);
+                    break;
+            }
+
+            return step;
+
         }
 
         public void Clean(string processName)
@@ -69,101 +102,6 @@ namespace Automation.UI
             {
                 proc.Kill();
             }
-        }
-
-        private void FillControl(XmlNode node, RemoteWebDriver driver)
-        {
-            try
-            {
-                if (node.Attributes["type"].Value.Equals("Navigation"))
-                {
-                    var url = node.Attributes["value"].Value;
-                    driver.Navigate().GoToUrl(url);
-                }
-                else
-                {
-                    By control = GetControl(node);
-                    IWebElement element = driver.FindElement(control);
-
-                    try
-                    {
-                        var submit = node.Attributes["submit"] != null;
-                        var value = node.Attributes["value"] != null ? node.Attributes["value"].Value : string.Empty;
-
-                        switch (node.Attributes["type"].Value)
-                        {
-                            case "Checkbox":
-                                element.Click();
-                                break;
-                            case "Button":
-                            case "Link":
-                            case "RadioButton":
-                                element.Click();
-                                break;
-                            case "Combobox":
-                                element.SendKeys(value);
-                                break;
-                            case "Textbox":
-                                element.Clear();
-                                element.SendKeys(value);
-                                if (submit)
-                                {
-                                    element.SendKeys(Keys.Return);
-                                }
-                                break;
-                            case "ScrollTo":
-                                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView();", element);
-                                break;
-                                //case "Screenshot":
-                                //    TakeScreenshot(id, chromeDriver);
-                                //    break;
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        //Fix: element not visible
-                        //((IJavaScriptExecutor)chromeDriver).ExecuteScript("arguments[0].checked = true;", element);
-                        //MessageBox.Show(ex.Message);
-                        throw;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        private By GetControl(XmlNode node)
-        {
-            By control = null;
-            string id;
-
-            if (node.Attributes["id"] != null)
-            {
-                id = node.Attributes["id"].Value;
-                control = By.Id(id);
-            }
-
-            if (node.Attributes["name"] != null)
-            {
-                id = node.Attributes["name"].Value;
-                control = By.Name(id);
-            }
-
-            if (node.Attributes["LinkText"] != null)
-            {
-                id = node.Attributes["LinkText"].Value;
-                control = By.LinkText(id);
-            }
-
-            if (node.Attributes["xpath"] != null)
-            {
-                id = node.Attributes["xpath"].Value;
-                control = By.XPath(id);
-            }
-
-            return control;
         }
     }
 }
